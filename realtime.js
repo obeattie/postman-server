@@ -25,7 +25,6 @@ var Reactor = {
     receive: function(channel, value){
         console.log('receive', channel, value);
         _.each((this.subscriptions[channel] || []), function(cb){
-            console.log('calling');
             cb(value);
         });
     },

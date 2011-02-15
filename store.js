@@ -60,18 +60,22 @@ var DeliveryAgent = {
         redis.rpush(key, item, cb);
     },
     
-    depersist: function(recipient, item){
+    depersist: function(recipient, rawItem){
         // Removes the passed item fom the persistant store. Returns the
         // removed item (the passed value) as to be chainable
         var key = this._getKey(recipient);
-        redis.lrem(key, 0, item);
-        return item;
+        redis.lrem(key, 0, rawItem);
+        return rawItem;
     },
     
     listen: function(recipient, cb){
         var key = this._getKey(recipient);
+        // Depersist needs to be passed recipient as an argument
         var depersist = _.bind(this.depersist, this, recipient);
         Reactor.subscribe(key, _.compose(cb, this._toArray, JSON.parse, depersist));
+        // Now call check and pass any of its results back too (to catch any
+        // links sent while no client was connected)
+        this.check(recipient, cb);
     },
     
     silence: Reactor.silence, // Simple proxy

@@ -44,6 +44,8 @@ Agent.init();
 var socket = io.listen(app);
 socket.on('connection', function(client){
     var sendLinkCb = function(links){
+        if (links.length < 1) return;
+        console.log('transmitting', links);
         client.send(JSON.stringify({
             'status': 'ok',
             'links': links
