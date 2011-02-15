@@ -37,7 +37,7 @@ app.get('/listen/:recipient', function(req, res){
 });
 
 // Listen on 80
-app.listen(80);
+app.listen(8080);
 Agent.init();
 
 // Socket.io
