@@ -9,27 +9,40 @@ var Reactor = {
     
     subscribe: function(channel, cb){
         console.log('subscribe', channel);
-        if (!_.include(this.subscriptions, channel)) {
+        if (!_.include(_.keys(this.subscriptions), channel)) {
             this.subscriptions[channel] = [];
             receiver.subscribe(channel);
         }
         this.subscriptions[channel].push(cb);
     },
     
+    unsubscribe: function(channel, cb){
+        console.log('unsubscribe', channel);
+        this.subscriptions[channel] = (this.subscriptions[channel] || []);
+        this.subscriptions[channel] = _.without(this.subscriptions[channel], cb);
+    },
+    
     receive: function(channel, value){
         console.log('receive', channel, value);
         _.each((this.subscriptions[channel] || []), function(cb){
+            console.log('calling');
             cb(value);
         });
     },
     
     send: function(channel, value){
         console.log('publish', channel, value);
-        sender.publish(channel, value);
+        return sender.publish(channel, value);
     },
     
     listen: function(){
         receiver.on('message', this.receive);
+    },
+    
+    silence: function(cb){
+        _.each(this.subscriptions, function(value, key){
+            this.subscriptions[key] = _.without(this.subscriptions[key], cb);
+        }, this);
     }
 }
 _.bindAll(Reactor);

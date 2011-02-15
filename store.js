@@ -45,6 +45,10 @@ var DeliveryAgent = {
         });
     },
     
+    _toArray: function(){
+        return _.toArray(arguments);
+    },
+    
     init: function(){
         Reactor.listen();
     },
@@ -56,18 +60,29 @@ var DeliveryAgent = {
         redis.rpush(key, item, cb);
     },
     
-    listen: function(recipient, cb){
+    depersist: function(recipient, item){
+        // Removes the passed item fom the persistant store. Returns the
+        // removed item (the passed value) as to be chainable
         var key = this._getKey(recipient);
-        Reactor.subscribe(key, _.compose(cb, JSON.parse));
+        redis.lrem(key, 0, item);
+        return item;
     },
     
-    check: function(key, cb){
+    listen: function(recipient, cb){
+        var key = this._getKey(recipient);
+        var depersist = _.bind(this.depersist, this, recipient);
+        Reactor.subscribe(key, _.compose(cb, this._toArray, JSON.parse, depersist));
+    },
+    
+    silence: Reactor.silence, // Simple proxy
+    
+    check: function(recipient, cb){
         var key = this._getKey(recipient);
         redis.lrange(key, 0, -1, function(err, result){
             assert.ok(result);
-            result = JSON.parse(result);
+            result = _.map(result, JSON.parse);
             redis.ltrim(key, result.length, -1);
-            cb([result]);
+            cb(result);
         });
     }
 }
