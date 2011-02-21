@@ -9,7 +9,7 @@ var Reactor = {
     
     subscribe: function(channel, cb){
         console.log('subscribe', channel);
-        if (!_.include(_.keys(this.subscriptions), channel)) {
+        if (!(channel in this.subscriptions)) {
             this.subscriptions[channel] = [];
             receiver.subscribe(channel);
         }

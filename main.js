@@ -9,10 +9,12 @@ var express = require('express'),
 // Parse POSTed data
 app.use(express.bodyDecoder());
 
-app.post('/send/:recipient', function(req, res){
-    var recipient = req.param('recipient');
-    Agent.send(recipient, req.body, function(){
-        res.send({ 'status': 'ok' });
+app.post('/send/', function(req, res){
+    var recipients = JSON.parse(req.body.recipients);
+    _.each(recipients, function(recipient){
+        Agent.send(recipient, req.body, function(){
+            res.send({ 'status': 'ok' });
+        });
     });
 });
 
