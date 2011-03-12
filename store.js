@@ -55,7 +55,7 @@ var DeliveryAgent = {
     },
     
     send: function(recipient, item, cb){
-        users.UserRegistry.exists(recipient, function(foo, userExists){
+        users.UserRegistry.exists(recipient, _.bind(function(foo, userExists){
             if (!userExists){
                 return cb('user:unknown');
             } else {
@@ -64,7 +64,7 @@ var DeliveryAgent = {
                 Reactor.send(key, item);
                 redis.rpush(key, item, cb);
             }
-        });
+        }, this));
     },
     
     depersist: function(recipient, rawItem){
