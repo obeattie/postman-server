@@ -12,8 +12,12 @@ app.use(express.bodyDecoder());
 app.post('/send/', function(req, res){
     var recipients = JSON.parse(req.body.recipients);
     _.each(recipients, function(recipient){
-        Agent.send(recipient, req.body, function(){
-            res.send({ 'status': 'ok' });
+        Agent.send(recipient, req.body, function(err){
+            if (!err){
+                res.send({ 'status': 'ok' });
+            } else {
+                res.send({ 'status': 'err', 'extra': err });
+            }
         });
     });
 });
@@ -53,6 +57,7 @@ socket.on('connection', function(client){
             'links': links
         }));
     }
+    sendLinkCb.sessionId = client.sessionId;
     
     client.on('message', function(data){
         data = JSON.parse(data);

@@ -39,8 +39,12 @@ var Reactor = {
     },
     
     silence: function(cb){
+        console.log('silencing' + cb.sessionId);
         _.each(this.subscriptions, function(value, key){
-            this.subscriptions[key] = _.without(this.subscriptions[key], cb);
+            _.each(value, function(v){console.log(v.sessionId)});
+            console.log('---');
+            this.subscriptions[key] = _.without(value, cb);
+            _.each(this.subscriptions[key], function(v){console.log(v.sessionId)});
         }, this);
     }
 }

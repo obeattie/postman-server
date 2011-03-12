@@ -6,6 +6,7 @@
 */
 
 var realtime = require('./realtime'),
+    users = require('./users'),
     redis = require('redis').createClient(),
     _ = require('underscore'),
     assert = require('assert');
@@ -54,10 +55,16 @@ var DeliveryAgent = {
     },
     
     send: function(recipient, item, cb){
-        var key = this._getKey(recipient);
-        item = JSON.stringify(this._sanitize(item));
-        Reactor.send(key, item);
-        redis.rpush(key, item, cb);
+        users.UserRegistry.exists(recipient, function(userExists){
+            if (!userExists){
+                return cb('user:unknown');
+            } else {
+                var key = this._getKey(recipient);
+                item = JSON.stringify(this._sanitize(item));
+                Reactor.send(key, item);
+                redis.rpush(key, item, cb);
+            }
+        });
     },
     
     depersist: function(recipient, rawItem){
@@ -69,6 +76,7 @@ var DeliveryAgent = {
     },
     
     listen: function(recipient, cb){
+        users.register(recipient); // Register in the user registry
         var key = this._getKey(recipient);
         // Depersist needs to be passed recipient as an argument
         var depersist = _.bind(this.depersist, this, recipient);
