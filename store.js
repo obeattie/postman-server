@@ -57,7 +57,7 @@ var DeliveryAgent = {
     send: function(recipient, item, cb){
         users.UserRegistry.exists(recipient, _.bind(function(foo, userExists){
             if (!userExists){
-                return cb('user:unknown');
+                return cb('user:unknown:' + recipient);
             } else {
                 var key = this._getKey(recipient);
                 item = JSON.stringify(this._sanitize(item));

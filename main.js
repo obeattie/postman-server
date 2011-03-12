@@ -10,13 +10,23 @@ var express = require('express'),
 app.use(express.bodyDecoder());
 
 app.post('/send/', function(req, res){
-    var recipients = JSON.parse(req.body.recipients);
+    var recipients = JSON.parse(req.body.recipients),
+        cbCounter = 0,
+        errors = [];
     _.each(recipients, function(recipient){
         Agent.send(recipient, req.body, function(err){
-            if (!err){
-                res.send({ 'status': 'ok' });
-            } else {
-                res.send({ 'status': 'err', 'extra': err });
+            cbCounter++;
+            if (err){
+                errors.push(err);
+            }
+            // If this is the last callback, return to the client
+            if (cbCounter === recipients.length){
+                // If there were any errors, return those
+                if (errors){
+                    res.send({ 'status': 'err', 'extra': errors });
+                } else {
+                    res.send({ 'status': 'ok' });
+                }
             }
         });
     });
