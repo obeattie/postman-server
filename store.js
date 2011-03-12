@@ -76,7 +76,7 @@ var DeliveryAgent = {
     },
     
     listen: function(recipient, cb){
-        users.register(recipient); // Register in the user registry
+        users.UserRegistry.register(recipient); // Register in the user registry
         var key = this._getKey(recipient);
         // Depersist needs to be passed recipient as an argument
         var depersist = _.bind(this.depersist, this, recipient);
