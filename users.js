@@ -7,6 +7,7 @@ var UserRegistry = {
     },
     
     exists: function(username, cb){
+        console.log('checking user exists: ' + username);
         // Asynchronous: returns boolean whether the specified username exists
         // (a simple proxy to a Redis call in reality)
         redis.exists(this._getKey(username), cb);
