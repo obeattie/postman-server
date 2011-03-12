@@ -55,7 +55,7 @@ var DeliveryAgent = {
     },
     
     send: function(recipient, item, cb){
-        users.UserRegistry.exists(recipient, function(userExists){
+        users.UserRegistry.exists(recipient, function(foo, userExists){
             if (!userExists){
                 return cb('user:unknown');
             } else {
