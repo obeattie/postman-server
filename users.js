@@ -14,11 +14,13 @@ var UserRegistry = {
     
     register: function(username){
         // Registers the specified username
+        console.log('Registering username: ' + username);
         redis.setnx(this._getKey(username), (new Date()).getTime());
     },
     
     deregister: function(username){
         // Deregisters the specified username
+        console.log('Deregistering username: ' + username);
         redis.del(this._getKey(username));
     }
 }
