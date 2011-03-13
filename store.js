@@ -34,6 +34,7 @@ var DeliveryAgent = {
             'timestamp': (new Date().getTime())
         }
         // ...check the URLs are really URLs
+        assert.ok(result.url);
         assert.ok(result.url.match(urlRe));
         assert.ok((!result.favicon || result.favicon.match(urlRe)))
         // Everything passed
