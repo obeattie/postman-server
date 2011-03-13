@@ -22,7 +22,7 @@ app.post('/send/', function(req, res){
             // If this is the last callback, return to the client
             if (cbCounter === recipients.length){
                 // If there were any errors, return those
-                if (errors){
+                if (errors.length){
                     res.send({ 'status': 'err', 'extra': errors });
                 } else {
                     res.send({ 'status': 'ok' });
