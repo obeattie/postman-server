@@ -14,21 +14,25 @@ app.post('/send/', function(req, res){
         cbCounter = 0,
         errors = [];
     _.each(recipients, function(recipient){
-        Agent.send(recipient, req.body, function(err){
-            cbCounter++;
-            if (err){
-                errors.push(err);
-            }
-            // If this is the last callback, return to the client
-            if (cbCounter === recipients.length){
-                // If there were any errors, return those
-                if (errors.length){
-                    res.send({ 'status': 'err', 'extra': errors });
-                } else {
-                    res.send({ 'status': 'ok' });
+        try {
+            Agent.send(recipient, req.body, function(err){
+                cbCounter++;
+                if (err){
+                    errors.push(err);
                 }
-            }
-        });
+                // If this is the last callback, return to the client
+                if (cbCounter === recipients.length){
+                    // If there were any errors, return those
+                    if (errors.length){
+                        res.send({ 'status': 'err', 'extra': errors });
+                    } else {
+                        res.send({ 'status': 'ok' });
+                    }
+                }
+            });
+        } catch (err) {
+            res.send({ 'status': 'err', 'extra': err });
+        }
     });
 });
 
