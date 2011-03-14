@@ -52,10 +52,12 @@ var DeliveryAgent = {
     },
     
     init: function(){
+        console.log('store.DeliveryAgent.init');
         Reactor.listen();
     },
     
     send: function(recipient, item, cb){
+        console.log('store.DeliveryAgent.send:', recipient);
         users.UserRegistry.exists(recipient, _.bind(function(foo, userExists){
             if (!userExists){
                 return cb('user:unknown:' + recipient);
@@ -71,12 +73,14 @@ var DeliveryAgent = {
     depersist: function(recipient, rawItem){
         // Removes the passed item fom the persistant store. Returns the
         // removed item (the passed value) as to be chainable
+        console.log('store.DeliveryAgent.depersist:', recipient);
         var key = this._getKey(recipient);
         redis.lrem(key, 0, rawItem);
         return rawItem;
     },
     
     listen: function(recipient, cb, sessionId){
+        console.log('store.DeliveryAgent.listen:', sessionId);
         users.UserRegistry.register(recipient); // Register in the user registry
         var key = this._getKey(recipient);
         // Depersist needs to be passed recipient as an argument
@@ -94,6 +98,7 @@ var DeliveryAgent = {
     silence: Reactor.silence, // Simple proxy
     
     check: function(recipient, cb){
+        console.log('store.DeliveryAgent.check:', recipient);
         var key = this._getKey(recipient);
         redis.lrange(key, 0, -1, function(err, result){
             if (result) {
