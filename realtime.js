@@ -8,7 +8,7 @@ var Reactor = {
     subscriptions: {},
     
     subscribe: function(channel, cb){
-        console.log('subscribe', channel);
+        console.log('realtime.Reactor:subscribe', channel);
         if (!(channel in this.subscriptions)) {
             this.subscriptions[channel] = [];
             receiver.subscribe(channel);
@@ -17,20 +17,20 @@ var Reactor = {
     },
     
     unsubscribe: function(channel, cb){
-        console.log('unsubscribe', channel);
+        console.log('realtime.Reactor:unsubscribe', channel);
         this.subscriptions[channel] = (this.subscriptions[channel] || []);
         this.subscriptions[channel] = _.without(this.subscriptions[channel], cb);
     },
     
     receive: function(channel, value){
-        console.log('receive', channel, value);
+        console.log('realtime.Reactor:receive', channel, value);
         _.each((this.subscriptions[channel] || []), function(cb){
             cb(value);
         });
     },
     
     send: function(channel, value){
-        console.log('publish', channel, value);
+        console.log('realtime.Reactor:publish', channel, value);
         return sender.publish(channel, value);
     },
     
@@ -38,12 +38,12 @@ var Reactor = {
         receiver.on('message', this.receive);
     },
     
-    silence: function(cb){
-        console.log('silencing' + cb.sessionId);
+    silence: function(sessionId){
+        console.log('realtime.Reactor:silencing' + sessionId);
         _.each(this.subscriptions, function(value, key){
-            _.each(value, function(v){console.log(v.sessionId)});
-            this.subscriptions[key] = _.without(value, cb);
-            _.each(this.subscriptions[key], function(v){console.log(v.sessionId)});
+            this.subscriptions[key] = _.reject(value, function(cb){
+                return (cb.sessionId == sessionId);
+            });
         }, this);
     }
 }

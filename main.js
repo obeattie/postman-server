@@ -71,16 +71,15 @@ socket.on('connection', function(client){
             'links': links
         }));
     }
-    sendLinkCb.sessionId = client.sessionId;
     
     client.on('message', function(data){
         data = JSON.parse(data);
         if (data.method == 'listen'){
-            Agent.listen(data.to, sendLinkCb);
+            Agent.listen(data.to, sendLinkCb, client.sessionId);
         }
     });
     
     client.on('disconnect', function(){
-        Agent.silence(sendLinkCb);
+        Agent.silence(client.sessionId);
     });
 });

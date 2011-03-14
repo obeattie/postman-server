@@ -76,12 +76,16 @@ var DeliveryAgent = {
         return rawItem;
     },
     
-    listen: function(recipient, cb){
+    listen: function(recipient, cb, sessionId){
         users.UserRegistry.register(recipient); // Register in the user registry
         var key = this._getKey(recipient);
         // Depersist needs to be passed recipient as an argument
         var depersist = _.bind(this.depersist, this, recipient);
-        Reactor.subscribe(key, _.compose(cb, this._toArray, JSON.parse, depersist));
+        // Callback needs to be wrapped in a few things, and the session id
+        // preserved as an attribute
+        cb = _.compose(cb, this._toArray, JSON.parse, depersist);
+        cb.sessionId = sessionId;
+        Reactor.subscribe(key, cb);
         // Now call check and pass any of its results back too (to catch any
         // links sent while no client was connected)
         this.check(recipient, cb);
