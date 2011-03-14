@@ -101,11 +101,7 @@ var DeliveryAgent = {
         console.log('store.DeliveryAgent.check:', recipient);
         var key = this._getKey(recipient);
         redis.lrange(key, 0, -1, function(err, result){
-            if (result) {
-                result = _.map(result, JSON.parse);
-                redis.ltrim(key, result.length, -1);
-                cb(result);
-            }
+            _.each((result || []), cb);
         });
     }
 }

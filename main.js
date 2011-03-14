@@ -36,24 +36,6 @@ app.post('/send/', function(req, res){
     });
 });
 
-app.get('/check/:recipient', function(req, res){
-    var recipient = req.param('recipient');
-    Agent.check(recipient, function(links){
-        res.send({
-            'status': 'ok',
-            'links': links
-        });
-    });
-});
-
-app.get('/listen/:recipient', function(req, res){
-    var recipient = req.param('recipient');
-    Agent.listen(recipient, function(links){
-        res.send({
-            'status': 'ok',
-            'links': links
-        });
-    });
 });
 
 // Listen on 80
