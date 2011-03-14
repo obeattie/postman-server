@@ -36,6 +36,9 @@ app.post('/send/', function(req, res){
     });
 });
 
+// Set a global event listener to log and catch uncaught exceptions
+process.on('uncaughtException', function (err) {
+    console.log('Caught nearly fatal exception: ' + err);
 });
 
 // Listen on 80
