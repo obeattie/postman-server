@@ -58,6 +58,7 @@ socket.on('connection', function(client){
     }
     
     client.on('message', function(data){
+        console.log('socket.message: ', data);
         data = JSON.parse(data);
         if (data.method == 'listen'){
             Agent.listen(data.to, sendLinkCb, client.sessionId);
