@@ -9,7 +9,8 @@ var realtime = require('./realtime'),
     users = require('./users'),
     redis = require('redis').createClient(),
     _ = require('underscore'),
-    assert = require('assert');
+    assert = require('assert'),
+    uuid = require('node-uuid');
 
 var urlRe = /https?:\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
 var Reactor = realtime.Reactor;
@@ -25,11 +26,12 @@ var keyTemplates = {
 
 var DeliveryAgent = {
     _sanitize: function(item){
-        // Validates and sanitizes a link object
+        // Validates and sanitizes a link object (and gives it an id)
         var result = {
+            'id': uuid(),
             'url': item.url,
             'title': item.title,
-            'favicon': item.favicon,
+            'favicon': (item.favicon || null),
             'sender': item.sender,
             'timestamp': (new Date().getTime())
         }
@@ -37,6 +39,10 @@ var DeliveryAgent = {
         assert.ok(result.url, 'url undefined');
         assert.ok(result.url.match(urlRe), 'url regex mismatch');
         assert.ok((!result.favicon || result.favicon.match(urlRe)), 'favicon regex mismatch');
+        // And that title and sender are present (I know they're not really
+        // going to be undefined, but hey)
+        assert.ok(result.title, 'title undefined');
+        assert.ok(result.sender, 'sender undefined');
         // Everything passed
         return result;
     },
