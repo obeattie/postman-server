@@ -40,7 +40,7 @@ var Reactor = {
     
     silence: function(sessionId){
         console.log('realtime.Reactor:silencing ' + sessionId);
-        var _sum = function(i, x){ return i + x; }
+        var _sum = function(x, i){ return x + i.length; }
         console.log('    Before: ' + _.reduce(this.subscriptions, _sum, 0));
         _.each(this.subscriptions, function(value, key){
             this.subscriptions[key] = _.reject(value, function(cb){
