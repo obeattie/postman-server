@@ -1,5 +1,5 @@
 var cluster = require('cluster'),
-    exception = require('../'),
+    exception = require('cluster.exception'),
     app = require('./app'),
     config = require('./config');
 
