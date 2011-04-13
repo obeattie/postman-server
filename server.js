@@ -1,7 +1,6 @@
 var cluster = require('cluster'),
     exception = require('cluster.exception'),
-    app = require('./app'),
-    config = require('./config');
+    app = require('./app');
 
 cluster('./app')
     .use(cluster.logger('logs'))
