@@ -41,10 +41,6 @@ process.on('uncaughtException', function (err) {
     console.log('Caught nearly fatal exception: ' + err);
 });
 
-// Listen on 80
-app.listen(8080);
-Agent.init();
-
 // Socket.io
 var socket = io.listen(app);
 socket.on('connection', function(client){
