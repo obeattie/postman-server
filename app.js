@@ -16,26 +16,21 @@ app.post('/send/', function(req, res){
         link = Agent.sanitize(req.body);
     
     _.each(recipients, function(recipient){
-        try {
-            Agent.send(recipient, link, function(err){
-                cbCounter++;
-                if (err){
-                    errors.push(err);
+        Agent.send(recipient, link, function(err){
+            cbCounter++;
+            if (err){
+                errors.push(err);
+            }
+            // If this is the last callback, return to the client
+            if (cbCounter === recipients.length){
+                // If there were any errors, return those
+                if (errors.length){
+                    res.send({ 'status': 'err', 'extra': errors });
+                } else {
+                    res.send({ 'status': 'ok', 'extra': { 'link': link } });
                 }
-                // If this is the last callback, return to the client
-                if (cbCounter === recipients.length){
-                    // If there were any errors, return those
-                    if (errors.length){
-                        res.send({ 'status': 'err', 'extra': errors });
-                    } else {
-                        res.send({ 'status': 'ok', 'extra': { 'link': link } });
-                    }
-                }
-            });
-        } catch (err) {
-            res.send({ 'status': 'err', 'extra': 'Server error' }, 500);
-            throw err;
-        }
+            }
+        });
     });
 });
 
