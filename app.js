@@ -27,7 +27,8 @@ app.post('/send/', function(req, res){
                 if (errors.length){
                     res.send({ 'status': 'err', 'extra': errors });
                 } else {
-                    res.send({ 'status': 'ok', 'extra': { 'link': link } });
+                    var archivedLink = Agent.archive(link, recipients);
+                    res.send({ 'status': 'ok', 'extra': { 'link': archivedLink } });
                 }
             }
         });

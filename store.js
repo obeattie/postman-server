@@ -21,7 +21,8 @@ _.templateSettings = {
     'evaluate': /\{\%(.+?)\%\}/g
 };
 var keyTemplates = {
-    'recipientLinks': 'links:for:{{ recipient }}'
+    'recipientLinks': 'links:for:{{ recipient }}',
+    'archivedLinks': 'links:archived:{{ id }}'
 }
 
 var DeliveryAgent = {
@@ -74,6 +75,21 @@ var DeliveryAgent = {
                 redis.rpush(key, item, cb);
             }
         }, this));
+    },
+    
+    archive: function(link, recipients){
+        // Marks a link as having been sent (basically archives it permanently
+        // in Redis should we ever need it for anything [this is not currently
+        // used for anything but could be very handy for analytics etc]).
+        //
+        // Returns the link in archived form (currently, this includes the recipients
+        // list only, but again, more may be added)
+        console.log('store.DeliveryAgent:recordSent:', link, recipients);
+        var storageKey = _.template(keyTemplates.archivedLinks, link);
+        // Add the recipients to the link, and stringify it
+        link.recipients = recipients;
+        redis.set(storageKey, JSON.stringify(link));
+        return link;
     },
     
     depersist: function(recipient, rawItem){
