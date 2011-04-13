@@ -69,3 +69,5 @@ socket.on('connection', function(client){
         Agent.silence(client.sessionId);
     });
 });
+
+module.exports = app;
