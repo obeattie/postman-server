@@ -58,11 +58,6 @@ var DeliveryAgent = {
         return _.toArray(arguments);
     },
     
-    init: function(){
-        console.log('store.DeliveryAgent.init');
-        Reactor.listen();
-    },
-    
     send: function(recipient, item, cb){
         console.log('store.DeliveryAgent.send:', recipient);
         users.UserRegistry.exists(recipient, _.bind(function(foo, userExists){

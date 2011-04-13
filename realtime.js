@@ -7,6 +7,18 @@ var redis = require('redis'),
 var Reactor = {
     subscriptions: {},
     
+    init: function(){
+        receiver.on('message', this.receive);
+        receiver.on('connect', _.bind(function(){
+            // To support reconnection, subscribe to all of the listen channels
+            // when the connection is (re-)?established
+            var subscriptions = _.keys(this.subscriptions);
+            if (subscriptions.length){
+                receiver.subscribe.apply(receiver, subscriptions);
+            }
+        }, this));
+    },
+    
     subscribe: function(channel, cb){
         console.log('realtime.Reactor:subscribe ', channel);
         if (!(channel in this.subscriptions)) {
@@ -34,10 +46,6 @@ var Reactor = {
         return sender.publish(channel, value);
     },
     
-    listen: function(){
-        receiver.on('message', this.receive);
-    },
-    
     silence: function(sessionId){
         console.log('realtime.Reactor:silencing ' + sessionId);
         var _sum = function(x, i){ return x + i.length; }
@@ -51,5 +59,6 @@ var Reactor = {
     }
 }
 _.bindAll(Reactor);
+Reactor.init(); // Must be called when the module is initialised
 
 exports.Reactor = Reactor;

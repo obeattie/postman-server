@@ -35,8 +35,6 @@ app.post('/send/', function(req, res){
     });
 });
 
-Agent.init();
-
 // Socket.io
 var socket = io.listen(app);
 socket.on('connection', function(client){
