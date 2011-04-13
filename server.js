@@ -3,7 +3,7 @@ var cluster = require('cluster'),
     app = require('./app');
 
 cluster('./app')
-    .use(cluster.logger('logs'))
+    .use(cluster.logger('/var/log/postman-server'))
     .use(cluster.stats())
     .use(cluster.pidfiles('pids'))
     .use(cluster.cli())
