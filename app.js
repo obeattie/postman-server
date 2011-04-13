@@ -12,10 +12,12 @@ app.use(express.bodyDecoder());
 app.post('/send/', function(req, res){
     var recipients = JSON.parse(req.body.recipients),
         cbCounter = 0,
-        errors = [];
+        errors = []
+        link = Agent.sanitize(req.body);
+    
     _.each(recipients, function(recipient){
         try {
-            Agent.send(recipient, req.body, function(err){
+            Agent.send(recipient, link, function(err){
                 cbCounter++;
                 if (err){
                     errors.push(err);
@@ -26,12 +28,13 @@ app.post('/send/', function(req, res){
                     if (errors.length){
                         res.send({ 'status': 'err', 'extra': errors });
                     } else {
-                        res.send({ 'status': 'ok' });
+                        res.send({ 'status': 'ok', 'extra': { 'link': link } });
                     }
                 }
             });
         } catch (err) {
-            res.send({ 'status': 'err', 'extra': err });
+            res.send({ 'status': 'err', 'extra': 'Server error' }, 500);
+            throw err;
         }
     });
 });

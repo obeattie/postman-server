@@ -25,7 +25,7 @@ var keyTemplates = {
 }
 
 var DeliveryAgent = {
-    _sanitize: function(item){
+    sanitize: function(item){
         // Validates and sanitizes a link object (and gives it an id)
         var result = {
             'id': uuid(),
@@ -69,7 +69,7 @@ var DeliveryAgent = {
                 return cb('user:unknown:' + recipient);
             } else {
                 var key = this._getKey(recipient);
-                item = JSON.stringify(this._sanitize(item));
+                item = JSON.stringify(item);
                 Reactor.send(key, item);
                 redis.rpush(key, item, cb);
             }
