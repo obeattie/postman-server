@@ -5,7 +5,7 @@ var cluster = require('cluster'),
 cluster('./app')
     .use(cluster.logger('/var/log/postman-server'))
     .use(cluster.stats())
-    .use(cluster.pidfiles('pids'))
+    .use(cluster.pidfiles('/var/run/node'))
     .use(cluster.cli())
     .use(cluster.repl(666))
     .use(exception({to: 'webmaster@emberb0x.com'}))
