@@ -38,7 +38,7 @@ var UserRegistry = {
             'query': {
                 'access_token': token
             }
-        }).on('complete', function(data){
+        }).on('complete', _.bind(function(data){
             data = JSON.parse(data);
             if (data.id == username.toString()){
                 redis.set((this._getKey(username) + ':fbToken'), token);
@@ -47,7 +47,7 @@ var UserRegistry = {
             } else {
                 console.warn('Invalid fb auth token passed: ' + username + ', ' + token);
             }
-        });
+        }, this));
     },
     
     verifyAuthKey: function(username, key, cb, errCb){
