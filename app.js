@@ -11,29 +11,40 @@ var express = require('express'),
 app.use(express.bodyDecoder());
 
 app.post('/send/', function(req, res){
-    var recipients = JSON.parse(req.body.recipients),
-        cbCounter = 0,
-        errors = []
-        link = Agent.sanitize(req.body);
-    
-    _.each(recipients, function(recipient){
-        Agent.send(recipient, link, function(err){
-            cbCounter++;
-            if (err){
-                errors.push(err);
-            }
-            // If this is the last callback, return to the client
-            if (cbCounter === recipients.length){
-                // If there were any errors, return those
-                if (errors.length){
-                    res.send({ 'status': 'err', 'extra': errors });
-                } else {
-                    var archivedLink = Agent.archive(link, recipients);
-                    res.send({ 'status': 'ok', 'extra': { 'link': archivedLink } });
-                }
-            }
-        });
-    });
+    UserRegistry.verifyAuthKey(
+        req.body.sender,
+        req.body.authKey,
+        // Success cb
+        function(){
+            var recipients = JSON.parse(req.body.recipients),
+                cbCounter = 0,
+                errors = []
+                link = Agent.sanitize(req.body);
+            
+            _.each(recipients, function(recipient){
+                Agent.send(recipient, link, function(err){
+                    cbCounter++;
+                    if (err){
+                        errors.push(err);
+                    }
+                    // If this is the last callback, return to the client
+                    if (cbCounter === recipients.length){
+                        // If there were any errors, return those
+                        if (errors.length){
+                            res.send({ 'status': 'err', 'extra': errors });
+                        } else {
+                            var archivedLink = Agent.archive(link, recipients);
+                            res.send({ 'status': 'ok', 'extra': { 'link': archivedLink } });
+                        }
+                    }
+                });
+            });
+        },
+        // Error cb (authentication key didn't match)
+        function(){
+            res.send({ 'status': 'err', 'extra': 'auth failure' });
+        }
+    );
 });
 
 // Socket.io
@@ -44,6 +55,7 @@ socket.on('connection', function(client){
         console.log('transmitting', links);
         client.send(JSON.stringify({
             'status': 'ok',
+            'kind': 'incoming',
             'links': links
         }));
     }
@@ -53,10 +65,17 @@ socket.on('connection', function(client){
         data = JSON.parse(data);
         switch (data.method){
             case 'listen':
-                Agent.listen(data.to, sendLinkCb, client.sessionId);
+                UserRegistry.verifyAuthKey(data.to, data.authKey, function(){
+                    Agent.listen(data.to, sendLinkCb, client.sessionId);
+                });
                 break;
             case 'setFbToken':
-                UserRegistry.setFbToken(data.uid, data.token);
+                var localKey = UserRegistry.setFbToken(data.uid, data.token);
+                client.send(JSON.stringify({
+                    'status': 'ok',
+                    'kind': 'setAuthKey',
+                    'key': localKey
+                }));
                 break;
         }
         if (data.method == 'listen'){
