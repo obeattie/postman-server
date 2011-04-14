@@ -1,6 +1,7 @@
 var redis = require('redis').createClient(),
     _ = require('underscore'),
-    uuid = require('node-uuid');
+    uuid = require('node-uuid'),
+    rest = require('restler');
 
 var UserRegistry = {
     _getKey: function(username){
@@ -26,15 +27,26 @@ var UserRegistry = {
         redis.del(this._getKey(username));
     },
     
-    setFbToken: function(username, token){
-        // Sets the Facebook authentication token, and returns a UUID which
-        // will be used to verify the uid with the client whenever subsequent
-        // requests are made (a sorta-kinda ghetto-fab pubkey)
+    setFbToken: function(username, token, cb){
+        // Sets the Facebook authentication token, and calls back with a UUID
+        // to be used to verify the uid with the client whenever subsequent
+        // requests are made (a sorta-kinda ghetto-fab pubkey) -- after verifying
+        // the Facebook authentication token
         console.log('Recording FB token: ' + token);
         var localToken = uuid();
-        redis.set((this._getKey(username) + ':fbToken'), token);
-        redis.set((this._getKey(username) + ':authKey'), localToken);
-        return localToken;
+        rest.get('https://graph.facebook.com/me', {
+            'query': {
+                'access_token': token
+            }
+        }).on('complete', function(data){
+            if (data.id === username){
+                redis.set((this._getKey(username) + ':fbToken'), token);
+                redis.set((this._getKey(username) + ':authKey'), localToken);
+                cb(localToken);
+            } else {
+                console.warn('Invalid fb auth token passed: ' + username + ', ' + token);
+            }
+        });
     },
     
     verifyAuthKey: function(username, key, cb, errCb){

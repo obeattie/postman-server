@@ -70,12 +70,13 @@ socket.on('connection', function(client){
                 });
                 break;
             case 'setFbToken':
-                var localKey = UserRegistry.setFbToken(data.uid, data.token);
-                client.send(JSON.stringify({
-                    'status': 'ok',
-                    'kind': 'setAuthKey',
-                    'key': localKey
-                }));
+                UserRegistry.setFbToken(data.uid, data.token, function(localKey){
+                    client.send(JSON.stringify({
+                        'status': 'ok',
+                        'kind': 'setAuthKey',
+                        'key': localKey
+                    }));
+                });
                 break;
         }
         if (data.method == 'listen'){
