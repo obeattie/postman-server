@@ -3,6 +3,7 @@ var express = require('express'),
     redis = require('redis').createClient(),
     _ = require('underscore'),
     store = require('./store'),
+    UserRegistry = require('./users').UserRegistry,
     Agent = store.Agent,
     io = require('socket.io');
 
@@ -50,8 +51,16 @@ socket.on('connection', function(client){
     client.on('message', function(data){
         console.log('socket.message:', data);
         data = JSON.parse(data);
+        switch (data.method){
+            case 'listen':
+                Agent.listen(data.to, sendLinkCb, client.sessionId);
+                break;
+            case 'setFbToken':
+                UserRegistry.setFbToken(data.uid, data.token);
+                break;
+        }
         if (data.method == 'listen'){
-            Agent.listen(data.to, sendLinkCb, client.sessionId);
+            
         }
     });
     

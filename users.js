@@ -23,6 +23,11 @@ var UserRegistry = {
         // Deregisters the specified username
         console.log('Deregistering username: ' + username);
         redis.del(this._getKey(username));
+    },
+    
+    setFbToken: function(username, token){
+        console.log('Recording FB token: ' + token);
+        redis.set((this._getKey(username) + ':fbToken'), token);
     }
 }
 
