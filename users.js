@@ -39,7 +39,7 @@ var UserRegistry = {
                 'access_token': token
             }
         }).on('complete', function(data){
-            if (data.id === username){
+            if (data.id === username.toString()){
                 redis.set((this._getKey(username) + ':fbToken'), token);
                 redis.set((this._getKey(username) + ':authKey'), localToken);
                 cb(localToken);

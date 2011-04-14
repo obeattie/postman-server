@@ -79,9 +79,6 @@ socket.on('connection', function(client){
                 });
                 break;
         }
-        if (data.method == 'listen'){
-            
-        }
     });
     
     client.on('disconnect', function(){
