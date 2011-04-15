@@ -65,9 +65,21 @@ socket.on('connection', function(client){
         data = JSON.parse(data);
         switch (data.method){
             case 'listen':
-                UserRegistry.verifyAuthKey(data.to, data.authKey, function(){
-                    Agent.listen(data.to, sendLinkCb, client.sessionId);
-                });
+                UserRegistry.verifyAuthKey(
+                    data.to,
+                    data.authKey,
+                    // Successfully verified authentication key
+                    function(){
+                        Agent.listen(data.to, sendLinkCb, client.sessionId);
+                    },
+                    // Failure callback
+                    function(){
+                        client.send(JSON.stringify({
+                            'status': 'err',
+                            'kind': 'deauth',
+                            'extra': 'auth failure'
+                        }));
+                    });
                 break;
             case 'setFbToken':
                 UserRegistry.setFbToken(data.uid, data.token, function(localKey){
