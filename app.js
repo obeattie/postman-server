@@ -13,6 +13,7 @@ app.use(express.bodyDecoder());
 app.post('/send/', function(req, res){
     UserRegistry.verifyAuthKey(
         req.body.sender,
+        req.body.clientId,
         req.body.authKey,
         // Success cb
         function(){
@@ -47,10 +48,33 @@ app.post('/send/', function(req, res){
     );
 });
 
+app.post('/auth/', function(req, res){
+    UserRegistry.setFbToken(
+        req.body.uid,
+        req.body.clientId,
+        req.body.token,
+        // Success callback
+        function(localKey){
+            res.send({
+                'status': 'ok',
+                'authKey': localKey
+            });
+        },
+        // Error callback
+        function(){
+            res.send({
+                'status': 'err',
+                'extra': 'invalid fb token'
+            });
+        }
+    );
+});
+
 // Socket.io
 var socket = io.listen(app);
 socket.on('connection', function(client){
     var sendLinkCb = function(links){
+        // Callback bound to the client to send incoming links
         if (links.length < 1) return;
         console.log('transmitting', links);
         client.send(JSON.stringify({
@@ -67,6 +91,7 @@ socket.on('connection', function(client){
             case 'listen':
                 UserRegistry.verifyAuthKey(
                     data.to,
+                    data.clientId,
                     data.authKey,
                     // Successfully verified authentication key
                     function(){
@@ -80,15 +105,6 @@ socket.on('connection', function(client){
                             'extra': 'auth failure'
                         }));
                     });
-                break;
-            case 'setFbToken':
-                UserRegistry.setFbToken(data.uid, data.token, function(localKey){
-                    client.send(JSON.stringify({
-                        'status': 'ok',
-                        'kind': 'setAuthKey',
-                        'key': localKey
-                    }));
-                });
                 break;
         }
     });
