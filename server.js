@@ -9,4 +9,4 @@ cluster('./app')
     .use(cluster.cli())
     .use(cluster.repl(666))
     .use(exception({to: 'webmaster@emberb0x.com'}))
-    .listen(8080);
+    .listen(8088);
